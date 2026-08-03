@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+# Blocks commits that would leak catalog-derived data or obvious secrets.
+# Enable with: git config core.hooksPath .githooks
+set -euo pipefail
+
+staged=$(git diff --cached --name-only --diff-filter=ACM)
+[ -z "$staged" ] && exit 0
+
+blocked_paths='(^|/)(catalog|eval/results)(/|$)|\.env$'
+hit_paths=$(echo "$staged" | grep -E "$blocked_paths" || true)
+if [ -n "$hit_paths" ]; then
+    echo "pre-commit: refusing to commit catalog/eval-output/.env paths:"
+    echo "$hit_paths" | sed 's/^/  /'
+    exit 1
+fi
+
+secret_pattern='sk-[A-Za-z0-9]{10,}|AKIA[0-9A-Z]{16}|-----BEGIN [A-Z]+ PRIVATE KEY-----'
+if git diff --cached -U0 -- $staged | grep -E "^\+" | grep -Ev '^\+\+\+' | grep -qE "$secret_pattern"; then
+    echo "pre-commit: staged diff looks like it contains an API key or private key."
+    echo "If this is a false positive, commit with --no-verify."
+    exit 1
+fi
