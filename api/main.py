@@ -7,7 +7,7 @@ from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
-from agents.query_planner import run_conversation
+from agents.orchestrator import run_conversation
 
 STATIC_DIR = Path(__file__).parent / "static"
 
