@@ -18,7 +18,7 @@ distributed here and remains © Eric Cortes, all rights reserved.
 ## Stack
 
 - **Postgres + pgvector** — metadata, keywords, collections, and embeddings in one schema
-- **LangChain (`create_agent`) + OpenAI (`gpt-4o-mini`)** — two-agent pipeline: a *planner* agent (`agents/planner.py`) decomposes a brief into `search_archive` tool calls (semantic query + EXIF/keyword/collection filters); a *curator* agent (`agents/curator.py`) answers grounded only in what was retrieved, or hands refinement instructions back to the planner for one more round if the results are too thin — orchestrated in `agents/orchestrator.py`
+- **LangChain (`create_agent`) + OpenAI (`gpt-4o-mini`)** — the curator agent: decomposes a brief into a `search_archive` tool call (semantic query + EXIF/keyword/collection filters), then answers grounded only in what was retrieved
 - **FastAPI + Vite/React/Tailwind chat UI** — `/chat` endpoint, conversation history kept client-side
 - **Docker Compose** — Postgres + API for local dev
 - **GitHub Actions CI** — spins up Postgres, applies the schema, lints (ruff), runs pytest
@@ -28,7 +28,7 @@ distributed here and remains © Eric Cortes, all rights reserved.
 - Metadata ingestion from the `.lrcat` catalog — done, verified against a real production catalog (`ingest/lrcat_reader.py`)
 - Baseline keyword-retrieval eval (full-text search, no ML) — done, see `eval/results/keyword_retrieval_baseline.csv`
 - Caption/keyword text embeddings (OpenAI) + pgvector semantic search — implemented (`ingest/embed_captions.py`), not yet run against the live archive
-- Planner/curator agent pipeline + FastAPI + Docker + CI — implemented and tested (orchestration logic covered by mocked unit tests in `tests/test_orchestrator.py`); needs an API key for the configured LLM provider (OpenAI by default) to actually call the model
+- Curator chat agent + FastAPI + Docker + CI — implemented and tested; needs an API key for the configured LLM provider (OpenAI by default) to actually call the model
 - SigLIP image embeddings (real pixel access, not just captions) — blocked on source images not currently being mounted/accessible
 
 ## Running locally
